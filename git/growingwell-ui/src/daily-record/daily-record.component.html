@@ -1,0 +1,244 @@
+
+<div class="page">
+  <div class="dashboard">
+
+    <!-- Welcome banner -->
+    <header class="hero">
+      <div class="hero-text">
+        <span class="tag">GROWINGWELL AI</span>
+        <h1>Little habits,<br />healthy futures 🌱</h1>
+        <p>Track your child's daily routine and get a helpful AI-generated summary.</p>
+      </div>
+
+      <div class="hero-image">
+        <img
+          src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=900&q=85"
+          alt="Child enjoying outdoor play"
+        />
+      </div>
+    </header>
+
+    <!-- Daily record form -->
+    <section class="form-card">
+      <div class="section-heading">
+        <div>
+          <h2>Daily Activity Tracker</h2>
+          <p>Record your child's activities for the day.</p>
+        </div>
+        <span class="leaf">🌿</span>
+      </div>
+
+      <form (ngSubmit)="saveRecord()" #recordForm="ngForm">
+
+        <div class="field">
+          <label>Child's Age (years)</label>
+          <input type="number" name="child_age"
+            [(ngModel)]="record.child_age"
+            min="0" step="0.1" required />
+        </div>
+
+        <div class="field">
+          <label>Record Date</label>
+          <input type="date" name="record_date"
+            [(ngModel)]="record.record_date" required />
+        </div>
+
+        <div class="field full">
+          <label>🍎 Food Eaten</label>
+          <textarea name="food"
+            [(ngModel)]="record.food"
+            placeholder="Enter meals, fruits, vegetables and other foods..."
+            required></textarea>
+        </div>
+
+        <div class="field full">
+          <label>🥛 Protein Foods</label>
+          <textarea name="protein_foods"
+            [(ngModel)]="record.protein_foods"
+            placeholder="For example: milk, dal, eggs, paneer, nuts"></textarea>
+        </div>
+
+        <div class="field">
+          <label>😴 Sleep (hours)</label>
+          <input type="number" name="sleep_hours"
+            [(ngModel)]="record.sleep_hours"
+            min="0" step="0.1" required />
+        </div>
+
+        <div class="field">
+          <label>🌳 Outdoor Play (minutes)</label>
+          <input type="number" name="outdoor_minutes"
+            [(ngModel)]="record.outdoor_minutes"
+            min="0" required />
+        </div>
+
+        <div class="field">
+          <label>📚 Study Time (minutes)</label>
+          <input type="number" name="study_minutes"
+            [(ngModel)]="record.study_minutes"
+            min="0" required />
+        </div>
+
+        <div class="field">
+          <label>📱 Screen Time (minutes)</label>
+          <input type="number" name="screen_minutes"
+            [(ngModel)]="record.screen_minutes"
+            min="0" required />
+        </div>
+
+        <button type="submit"
+          [disabled]="loading || recordForm.invalid">
+          {{ loading ? 'Saving your record...' : 'Save Daily Record →' }}
+        </button>
+        <button
+  type="button"
+  class="clear-btn"
+  [disabled]="loading"
+  (click)="clearForm()">
+  Clear Form
+</button>
+      </form>
+
+      <p class="status" *ngIf="message">{{ message }}</p>
+
+      <div class="ai-card" *ngIf="aiSummary">
+        <h3>✨ Your AI Daily Summary</h3>
+        <p>{{ aiSummary }}</p>
+      </div>
+    </section>
+
+    <!-- Saved records -->
+    <section class="records-card">
+      <div class="section-heading">
+        <div>
+          <h2>Saved Daily Records</h2>
+          <p>Review your child's daily activity history.</p>
+        </div>
+        <span class="leaf">📊</span>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Age</th>
+              <th>Food</th>
+              <th>Protein Foods</th>
+              <th>Sleep</th>
+              <th>Outdoor</th>
+              <th>Study</th>
+              <th>Screen</th>
+              <th>AI Response
+                <div class="ai-disclaimer">
+  <span>ⓘ</span>
+  <p>
+    AI-generated suggestions may not always be accurate.
+    This information is for general guidance only . Always follow
+    your doctor's advice and prescription.
+  </p>
+</div>
+              </th>
+              
+
+
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of records">
+              <td>{{ item.record_date }}</td>
+              <td>{{ item.child_age }}</td>
+              <td>{{ item.food }}</td>
+              <td>{{ item.protein_foods || '-' }}</td>
+              <td>{{ item.sleep_hours }} hrs</td>
+              <td>{{ item.outdoor_minutes }} min</td>
+              <td>{{ item.study_minutes }} min</td>
+              <td>{{ item.screen_minutes }} min</td>
+              <td>{{ item.ai_response || 'No AI response available' }}</td>
+              
+<td class="actions">
+  <button
+    type="button"
+    class="icon-btn view-icon"
+    title="View record"
+    aria-label="View record"
+    (click)="viewRecord(item.id!)">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/>
+      <circle cx="12" cy="12" r="3"/>
+    </svg>
+  </button>
+
+  <button
+    type="button"
+    class="icon-btn delete-icon"
+    title="Delete record"
+    aria-label="Delete record"
+    (click)="deleteRecord(item.id!)">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M3 6h18"/>
+      <path d="M8 6V4h8v2"/>
+      <path d="m19 6-1 14H6L5 6"/>
+      <path d="M10 10v6M14 10v6"/>
+    </svg>
+  </button>
+
+  
+<button
+  type="button"
+  class="icon-btn edit-icon"
+  title="Edit record"
+  aria-label="Edit record"
+  (click)="editRecord(item)">
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M12 20h9"/>
+    <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/>
+  </svg>
+</button>
+
+</td>
+
+            </tr>
+            <tr *ngIf="records.length === 0">
+              <td colspan="9" class="empty">
+                No daily records found yet.
+              </td>
+            </tr>
+            
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+
+
+<section class="selected-card" *ngIf="selectedRecord as item">
+  <div class="selected-heading">
+    <div>
+      <h2>Daily Record Details</h2>
+      <p>Record date: {{ item.record_date }}</p>
+    </div>
+
+    <button type="button" class="close-btn"
+      (click)="selectedRecord = null">
+      Close
+    </button>
+  </div>
+
+  <div class="details-grid">
+    <p><strong>Child Age:</strong> {{ item.child_age }} years</p>
+    <p><strong>Sleep:</strong> {{ item.sleep_hours }} hours</p>
+    <p><strong>Outdoor:</strong> {{ item.outdoor_minutes }} minutes</p>
+    <p><strong>Study:</strong> {{ item.study_minutes }} minutes</p>
+    <p><strong>Screen:</strong> {{ item.screen_minutes }} minutes</p>
+    <p><strong>Food:</strong> {{ item.food }}</p>
+    <p><strong>Protein Foods:</strong> {{ item.protein_foods || '-' }}</p>
+    <p><strong>AI Response:</strong> {{ item.ai_response || 'No AI response available' }}</p>
+  </div>
+</section>
+
+
+
+  </div>
+</div>
